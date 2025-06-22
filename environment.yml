@@ -1,0 +1,16 @@
+name: pypolytop
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - scipy
+  - pylint
+  - pytest
+  - pytest-cov
+  - pandas
+  - matplotlib
+  - meshio
+  - pypardiso
+  - scikit-sparse

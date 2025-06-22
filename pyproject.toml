@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypolytop"
+version = "0.0.1"
+authors = [
+  { name="Jonathan Russ", email="jr8736@princeton.edu" },
+]
+description = "A package based on PolyTop for density based topology optimization with polygonal elements."
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython"
+]
+keywords = ["polygon", "topology optimization", "design optimization"]
+dependencies = ["numpy", "scipy", "pandas", "matplotlib", "pytest", "pytest-cov", "netCDF4", "meshio", "pypardiso", "sphinx"]
+
+[project.urls]
+repository = "https://github.com/jr3737/pypolytop.git"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--import-mode=importlib",
+    "-v", "-s", "--cov=src/", "--cov-report=html", "--cov-config=.coveragerc",
+]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+pythonpath = ["./"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "@abstractmethod",
+    "raise NotImplementedError",
+    "pass",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
