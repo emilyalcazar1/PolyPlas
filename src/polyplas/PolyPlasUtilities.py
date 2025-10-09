@@ -358,6 +358,83 @@ def get_shape_function_tables_and_quadrature_weights(unique_numbers_of_vertices:
             shape_function_gradients[number_of_vertices][quadrature_point_index, :, :] = \
                 polygonal_shape_function_gradients
     return shape_function_values, shape_function_gradients, quadrature_weights
+
+#######################################################################################################################
+#######################################################################################################################
+def get_quadrature_points_and_weights_quad_element_type(quadrature_order: int = 2):
+    if quadrature_order != 2:
+        raise NotImplementedError()
+    c1 = 1.0 / (3.0**0.5)
+    quadrature_points = np.array([[-c1, -c1], [c1, -c1], [c1, c1], [-c1, c1]], dtype=float)
+    quadrature_weights = np.array([1.0, 1.0, 1.0, 1.0], dtype=float)
+    return quadrature_points, quadrature_weights
+
+
+#######################################################################################################################
+#######################################################################################################################
+def get_quadrilateral_shape_function_values_and_gradients_in_natural_coordinates_quad_element_type(quadrature_points: np.ndarray, number_of_nodes_per_element: int = 4):
+    zeta = quadrature_points[:, 0]
+    eta  = quadrature_points[:, 1]
+    if number_of_nodes_per_element == 4:
+        shape_function_values = 0.25 * np.array([(1.0 - zeta) * (1.0 - eta),
+                                                 (1.0 + zeta) * (1.0 - eta),
+                                                 (1.0 + zeta) * (1.0 + eta),
+                                                 (1.0 - zeta) * (1.0 + eta)], dtype=float).T
+        shape_function_gradients = 0.25 * np.array([[(-1.0 + eta), (-1.0 + zeta)],
+                                                    [( 1.0 - eta), (-1.0 - zeta)],
+                                                    [( 1.0 + eta), ( 1.0 + zeta)],
+                                                    [(-1.0 - eta), ( 1.0 - zeta)]], dtype=float).transpose((2, 0, 1))
+        return shape_function_values, shape_function_gradients
+    elif number_of_nodes_per_element == 8:
+        shape_function_values = np.array([0.25 * (1.0 - zeta) * (1.0 - eta) * (-1.0 - zeta - eta),
+                                          0.25 * (1.0 + zeta) * (1.0 - eta) * (-1.0 + zeta - eta),
+                                          0.25 * (1.0 + zeta) * (1.0 + eta) * (-1.0 + zeta + eta),
+                                          0.25 * (1.0 - zeta) * (1.0 + eta) * (-1.0 - zeta + eta),
+                                          0.50 * (1.0 - zeta**2) * (1.0 - eta),
+                                          0.50 * (1.0 + zeta)    * (1.0 - eta**2),
+                                          0.50 * (1.0 - zeta**2) * (1.0 + eta),
+                                          0.50 * (1.0 - zeta)    * (1.0 - eta**2)], dtype=float).T
+        shape_function_gradients = np.array([[-0.25*( (eta - 1.0) * (eta + zeta + 1.0)  + (eta - 1.0) * (zeta - 1.0)), -(2.0*eta + zeta)*(0.25*zeta - 0.25)],
+                                             [ 0.25*(-(eta - 1.0) * (zeta + 1.0) + (eta - 1.0) * (eta - zeta + 1.0)),   (2.0*eta - zeta)*(0.25*zeta + 0.25)],
+                                             [ 0.25*( (eta + 1.0) * (zeta + 1.0) + (eta + 1.0) * (eta + zeta - 1.0)),   (2.0*eta + zeta)*(0.25*zeta + 0.25)],
+                                             [ 0.25*( (eta + 1.0) * (-eta + zeta + 1.0) + (eta + 1.0) * (zeta - 1.0)), -(2.0*eta - zeta)*(0.25*zeta - 0.25)],
+                                             [ zeta*(eta - 1.0),    0.5*(zeta**2 - 1.0)],
+                                             [ 0.5*(1.0 - eta**2), -eta*(zeta + 1.0)],
+                                             [-zeta*(eta + 1.0),    0.5*(1.0 - zeta**2)],
+                                             [-0.5*(1.0 - eta**2), -eta*(1.0 - zeta)]], dtype=float).transpose((2, 0, 1))
+        return shape_function_values, shape_function_gradients
+    else:
+        raise NotImplementedError()
+    
+#######################################################################################################################
+#######################################################################################################################
+def get_shape_function_table_and_quadrature_weights_quad_element_type(unique_numbers_of_vertices):
+
+    shape_function_values = {}
+    shape_function_gradients = {}
+    quadrature_weights = {}
+    for number_of_vertices in unique_numbers_of_vertices:
+        quad_elem_quadrature_points, quad_elem_quadrature_weights = \
+            get_quadrature_points_and_weights_quad_element_type(quadrature_order=2)
+        number_of_quadrature_points = quad_elem_quadrature_points.shape[0]
+        quadrature_weights[number_of_vertices] = quad_elem_quadrature_weights
+
+        shape_function_values[number_of_vertices] = \
+            np.zeros((number_of_quadrature_points, number_of_vertices), dtype=float)
+        shape_function_gradients[number_of_vertices] = \
+            np.zeros((number_of_quadrature_points, number_of_vertices, 2), dtype=float)
+        for quadrature_point_index in range(number_of_quadrature_points):
+            quadrature_point = quad_elem_quadrature_points[quadrature_point_index, :]
+            quadrature_point_reshaped = quadrature_point.reshape((1, 2))
+            quad_elem_shape_function_values, quad_elem_shape_function_gradients = \
+                get_quadrilateral_shape_function_values_and_gradients_in_natural_coordinates_quad_element_type\
+                    (quadrature_point_reshaped, number_of_vertices)
+            shape_function_values[number_of_vertices][quadrature_point_index, :] = \
+                quad_elem_shape_function_values
+            shape_function_gradients[number_of_vertices][quadrature_point_index, :, :] = \
+                quad_elem_shape_function_gradients
+    return shape_function_values, shape_function_gradients, quadrature_weights
+
    
 #######################################################################################################################
 #######################################################################################################################
@@ -587,11 +664,15 @@ def get_precomputed_data_filter_and_heaviside_projection(polymesh_object: PolyMe
     
     
 
+
     
     unique_numbers_of_vertices = element_connectivity_arrays.keys()
     #POLYGONAL ELEMENTS
     shape_function_values, shape_function_gradients_in_natural_coordinates, quadrature_weights = get_shape_function_tables_and_quadrature_weights(unique_numbers_of_vertices, number_of_triangle_quadrature_points)
-    
+
+    #QUAD ELEMENTS
+    # shape_function_values, shape_function_gradients_in_natural_coordinates, quadrature_weights = get_shape_function_table_and_quadrature_weights_quad_element_type(unique_numbers_of_vertices)
+
     element_index = 0
     total_area = 0.0
     stiffness_matrix_rows = []
@@ -939,4 +1020,5 @@ def plot_scalar_nodal_field_contours(precomputed_data,
                              extend=extend)
     color_bar.set_label(label=colorbar_label, size=18)
     color_bar.ax.tick_params(labelsize=16)
+
     fig.tight_layout()
