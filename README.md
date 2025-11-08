@@ -1,6 +1,6 @@
 # **POLYPLAS v1.0.0**
 
-## An open-source educational python program for topology optimization considering von Mises elastoplasticity. Instructions are listed below, see publication BLANK for more details.
+## An open-source educational python program for topology optimization considering von Mises elastoplasticity. Instructions are listed below, see publication [HERE](https://link.springer.com/article/10.1007/s00158-025-04055-2) for more details.
 
 Ensure you have the following already installed prior to the next steps:
 - Python 3.10 or higher
@@ -47,6 +47,7 @@ Ensure you have the following already installed prior to the next steps:
 ## License
 
 This project is licensed under the [MIT License](LICENSE). Please use, modify, and distribute this project as per the terms of the license.
+
 
 
 
